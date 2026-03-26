@@ -68,6 +68,10 @@ create policy "profiles_update_self" on public.profiles
 for update using (auth.uid() = id)
 with check (auth.uid() = id);
 
+drop policy if exists "profiles_insert_self" on public.profiles;
+create policy "profiles_insert_self" on public.profiles
+for insert with check (auth.uid() = id);
+
 drop policy if exists "emails_delete_participant" on public.emails;
 create policy "emails_delete_participant" on public.emails
 for delete using (

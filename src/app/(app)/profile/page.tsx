@@ -75,7 +75,13 @@ export default function ProfilePage() {
       return;
     }
 
-    const { error: updateError } = await supabase.from("profiles").update({ full_name: newName }).eq("id", user.id);
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .upsert(
+        { id: user.id, email: user.email ?? "", full_name: newName },
+        { onConflict: "id" }
+      );
+
     if (updateError) {
       setError(updateError.message);
       setLoading(false);

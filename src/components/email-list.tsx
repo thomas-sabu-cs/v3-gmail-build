@@ -20,31 +20,56 @@ export function EmailList({
   const supabase = createClient();
   const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   async function toggleStar(email: EmailRow) {
+    setActionError(null);
     setBusyId(email.id);
-    await supabase.from("emails").update({ is_starred: !email.is_starred }).eq("id", email.id);
+    const { error } = await supabase.from("emails").update({ is_starred: !email.is_starred }).eq("id", email.id);
+    if (error) {
+      setActionError(error.message);
+      setBusyId(null);
+      return;
+    }
     setBusyId(null);
     router.refresh();
   }
 
   async function moveToTrash(email: EmailRow) {
+    setActionError(null);
     setBusyId(email.id);
-    await supabase.from("emails").update({ is_deleted: true }).eq("id", email.id);
+    const { error } = await supabase.from("emails").update({ is_deleted: true }).eq("id", email.id);
+    if (error) {
+      setActionError(error.message);
+      setBusyId(null);
+      return;
+    }
     setBusyId(null);
     router.refresh();
   }
 
   async function recoverFromTrash(email: EmailRow) {
+    setActionError(null);
     setBusyId(email.id);
-    await supabase.from("emails").update({ is_deleted: false }).eq("id", email.id);
+    const { error } = await supabase.from("emails").update({ is_deleted: false }).eq("id", email.id);
+    if (error) {
+      setActionError(error.message);
+      setBusyId(null);
+      return;
+    }
     setBusyId(null);
     router.refresh();
   }
 
   async function permanentlyDelete(email: EmailRow) {
+    setActionError(null);
     setBusyId(email.id);
-    await supabase.from("emails").delete().eq("id", email.id);
+    const { error } = await supabase.from("emails").delete().eq("id", email.id);
+    if (error) {
+      setActionError(error.message);
+      setBusyId(null);
+      return;
+    }
     setBusyId(null);
     router.refresh();
   }
@@ -52,8 +77,14 @@ export function EmailList({
   async function recoverAllInTrash() {
     if (emails.length === 0) return;
     const ids = emails.map((e) => e.id);
+    setActionError(null);
     setBusyId("bulk");
-    await supabase.from("emails").update({ is_deleted: false }).in("id", ids);
+    const { error } = await supabase.from("emails").update({ is_deleted: false }).in("id", ids);
+    if (error) {
+      setActionError(error.message);
+      setBusyId(null);
+      return;
+    }
     setBusyId(null);
     router.refresh();
   }
@@ -61,8 +92,14 @@ export function EmailList({
   async function permanentlyDeleteAllInTrash() {
     if (emails.length === 0) return;
     const ids = emails.map((e) => e.id);
+    setActionError(null);
     setBusyId("bulk");
-    await supabase.from("emails").delete().in("id", ids);
+    const { error } = await supabase.from("emails").delete().in("id", ids);
+    if (error) {
+      setActionError(error.message);
+      setBusyId(null);
+      return;
+    }
     setBusyId(null);
     router.refresh();
   }
@@ -94,6 +131,10 @@ export function EmailList({
             Delete forever
           </button>
         </div>
+      ) : null}
+
+      {actionError ? (
+        <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{actionError}</p>
       ) : null}
 
       <ul className="space-y-2">

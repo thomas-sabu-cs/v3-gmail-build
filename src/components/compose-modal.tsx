@@ -31,16 +31,19 @@ export function ComposeModal() {
     }
 
     const recipient = recipientEmail.trim().toLowerCase();
-
-    const { error: insertError } = await supabase.from("emails").insert({
-      sender_id: user.id,
-      recipient_email: recipient,
-      subject,
-      body
+    const res = await fetch("/api/mail/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        recipientEmail: recipient,
+        subject,
+        body
+      })
     });
 
-    if (insertError) {
-      setError(insertError.message);
+    if (!res.ok) {
+      const sendBody = (await res.json().catch(() => null)) as { error?: string } | null;
+      setError(sendBody?.error ?? "Failed to send email.");
       setSending(false);
       return;
     }

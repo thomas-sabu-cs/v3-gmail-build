@@ -45,7 +45,7 @@ drop policy if exists "emails_select_participant" on public.emails;
 create policy "emails_select_participant" on public.emails
 for select using (
   sender_id = auth.uid()
-  or lower(recipient_email) = lower((select email from auth.users where id = auth.uid()))
+  or lower(recipient_email) = lower((select email from public.profiles where id = auth.uid()))
 );
 
 drop policy if exists "emails_insert_sender" on public.emails;
@@ -56,5 +56,5 @@ drop policy if exists "emails_update_participant" on public.emails;
 create policy "emails_update_participant" on public.emails
 for update using (
   sender_id = auth.uid()
-  or lower(recipient_email) = lower((select email from auth.users where id = auth.uid()))
+  or lower(recipient_email) = lower((select email from public.profiles where id = auth.uid()))
 );

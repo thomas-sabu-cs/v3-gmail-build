@@ -30,9 +30,11 @@ export function ComposeModal() {
       return;
     }
 
+    const recipient = recipientEmail.trim().toLowerCase();
+
     const { error: insertError } = await supabase.from("emails").insert({
       sender_id: user.id,
-      recipient_email: recipientEmail,
+      recipient_email: recipient,
       subject,
       body
     });

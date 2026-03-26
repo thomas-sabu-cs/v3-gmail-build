@@ -11,7 +11,7 @@ export function applyMailboxFilter(
   switch (mailbox) {
     case "inbox":
       return query
-        .eq("recipient_email", userEmail)
+        .eq("recipient_email", userEmail.toLowerCase())
         .eq("is_deleted", false)
         .eq("is_archived", false);
     case "starred":

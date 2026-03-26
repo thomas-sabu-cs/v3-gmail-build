@@ -25,13 +25,24 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     setError(null);
 
     if (mode === "signup") {
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { full_name: fullName } }
+      // Create user via server so Supabase does not send verification emails.
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, fullName }),
       });
-      if (signUpError) {
-        setError(signUpError.message);
+
+      if (!res.ok) {
+        const body = (await res.json().catch(() => null)) as { error?: string } | null;
+        setError(body?.error ?? "Sign up failed.");
+        setLoading(false);
+        return;
+      }
+
+      // User is created with `email_confirm: true`, so we can sign in normally.
+      const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+      if (loginError) {
+        setError(loginError.message);
         setLoading(false);
         return;
       }

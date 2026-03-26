@@ -11,7 +11,8 @@ export function applyMailboxFilter(
   switch (mailbox) {
     case "inbox":
       return query
-        .eq("recipient_email", userEmail.toLowerCase())
+        // Case-insensitive match so previously-sent rows still show up.
+        .ilike("recipient_email", userEmail)
         .eq("is_deleted", false)
         .eq("is_archived", false);
     case "starred":

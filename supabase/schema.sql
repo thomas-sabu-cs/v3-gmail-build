@@ -57,4 +57,20 @@ create policy "emails_update_participant" on public.emails
 for update using (
   sender_id = auth.uid()
   or lower(recipient_email) = lower((select email from public.profiles where id = auth.uid()))
+)
+with check (
+  sender_id = auth.uid()
+  or lower(recipient_email) = lower((select email from public.profiles where id = auth.uid()))
+);
+
+drop policy if exists "profiles_update_self" on public.profiles;
+create policy "profiles_update_self" on public.profiles
+for update using (auth.uid() = id)
+with check (auth.uid() = id);
+
+drop policy if exists "emails_delete_participant" on public.emails;
+create policy "emails_delete_participant" on public.emails
+for delete using (
+  sender_id = auth.uid()
+  or lower(recipient_email) = lower((select email from public.profiles where id = auth.uid()))
 );

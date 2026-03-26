@@ -40,7 +40,7 @@ export default async function MailboxPage({
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-semibold">{label}</h1>
-      <EmailList emails={data ?? []} currentUserId={user.id} />
+      <EmailList emails={data ?? []} currentUserId={user.id} currentMailbox={mailboxKey} />
     </div>
   );
 }
